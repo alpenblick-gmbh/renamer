@@ -1,11 +1,12 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { Dropzone } from './components/Dropzone';
-import { FileItem, FileStatus } from './components/FileItem';
+import { FileList } from './components/FileList';
 import { InfoIcon, HeartIcon } from './components/icons';
 import { GEMINI_PROMPT } from './constants';
 import { convertPdfToImage, getNewFileName } from './lib/utils';
 import { AlpenblickLogo } from './components/AlpenblickLogo';
+import { FileStatus } from './components/FileItem';
 
 // --- CONFIGURATION ---
 const APP_CONFIG = {
@@ -92,30 +93,36 @@ function App() {
     }
   }, [files]);
 
-  const handleDelete = (id: string) => {
-    setFiles((prevFiles) => prevFiles.filter((file) => file.id !== id));
+  const handleDelete = (index: number) => {
+    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
   };
   
   const clearAll = () => {
     setFiles([]);
   }
 
-  const handleDownload = (file: File, newName?: string) => {
+  const handleDownload = (index: number) => {
+    const fileToDownload = files[index];
     const link = document.createElement('a');
-    link.href = URL.createObjectURL(file);
-    link.download = newName || file.name;
+    link.href = URL.createObjectURL(fileToDownload.file);
+    link.download = fileToDownload.newName || fileToDownload.file.name;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+  
+  const handleSend = (index: number) => {
+    const fileToSend = files[index];
+    console.log(`Sending file: ${fileToSend.newName || fileToSend.file.name}`);
   };
 
   const renderFooter = () => {
     const parts = APP_CONFIG.footerTemplate.split(/(\{\{.*?\}\})/g);
     return parts.map((part, index) => {
       if (part === '{{heart}}') {
-        return <HeartIcon key={index} className="inline-block align-baseline text-blue-400 mx-1" />;
+        return <HeartIcon key={index} className="h-5 w-5 inline-block align-middle text-blue-400 mx-1" style={{ position: 'relative', top: '-1px' }} />;
       } else if (part === '{{link}}') {
-        return <a key={index} href={APP_CONFIG.footerLink} target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-300">{APP_CONFIG.footerLinkText}</a>;
+        return <a key={index} href={APP_CONFIG.footerLink} target="_blank" rel="noopener noreferrer" className="hover:text-blue-400">{APP_CONFIG.footerLinkText}</a>;
       } else {
         return part;
       }
@@ -132,35 +139,19 @@ function App() {
 
         <main className="space-y-6">
           <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 sm:p-8 shadow-lg">
-            <Dropzone onFilesAdded={handleFilesAdded} disabled={isProcessing} />
+            <Dropzone onFilesAdded={handleFilesAdded} isProcessing={isProcessing} />
           </div>
           
           {files.length > 0 && (
             <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 sm:p-8 shadow-lg">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-white">Dateien</h2>
-                <button 
-                  onClick={clearAll}
-                  className="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-700 rounded-md hover:bg-red-800 hover:text-white transition-colors duration-200 disabled:opacity-50"
-                  disabled={isProcessing}
-                >
-                  Alle löschen
-                </button>
-              </div>
-               <div className="space-y-4">
-                {files.map((appFile) => (
-                  <FileItem
-                    key={appFile.id}
-                    file={appFile.file}
-                    status={appFile.status}
-                    newName={appFile.newName}
-                    errorMessage={appFile.errorMessage}
-                    onDelete={() => handleDelete(appFile.id)}
-                    onDownload={() => handleDownload(appFile.file, appFile.newName)}
-                    isProcessing={isProcessing}
-                  />
-                ))}
-              </div>
+                <FileList 
+                  files={files}
+                  onDelete={handleDelete}
+                  onDownload={handleDownload}
+                  onSend={handleSend}
+                  onClearAll={clearAll}
+                  isProcessing={isProcessing}
+                />
             </div>
           )}
 

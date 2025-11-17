@@ -1,44 +1,43 @@
-
-import React from 'react';
-import { useDropzone } from 'react-dropzone';
+import React, { useCallback } from 'react';
+import { useDropzone, DropzoneState } from 'react-dropzone';
 import { UploadIcon } from './icons';
 
-interface DropzoneProps {
+interface DropZoneProps {
   onFilesAdded: (files: File[]) => void;
-  disabled?: boolean;
+  isProcessing: boolean;
 }
 
-export const Dropzone: React.FC<DropzoneProps> = ({ onFilesAdded, disabled }) => {
+export const Dropzone: React.FC<DropZoneProps> = ({ onFilesAdded, isProcessing }) => {
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    onFilesAdded(acceptedFiles);
+  }, [onFilesAdded]);
 
-  const onDrop = React.useCallback((acceptedFiles: File[]) => {
-    if (!disabled) {
-      onFilesAdded(acceptedFiles);
-    }
-  }, [onFilesAdded, disabled]);
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive }: DropzoneState = useDropzone({
     onDrop,
-    disabled,
     accept: {
       'application/pdf': ['.pdf'],
       'image/jpeg': ['.jpg', '.jpeg'],
       'image/png': ['.png'],
-      'image/webp': ['.webp'],
-    }
+        'image/webp': ['.webp'],
+    },
+    disabled: isProcessing
   });
 
+  const dropzoneClassName = `
+    flex flex-col items-center justify-center w-full h-64 
+    border-2 border-dashed border-gray-600 rounded-lg 
+    cursor-pointer transition-colors duration-300
+    ${isDragActive ? 'bg-[#2c3544]' : 'bg-gray-800/50'}
+    ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-700/50'}
+  `;
+
   return (
-    <div
-      {...getRootProps()}
-      className={`border-2 border-dashed border-gray-600 rounded-xl p-12 text-center transition-colors duration-200 
-        ${isDragActive ? 'border-blue-400 bg-gray-700/30' : ''} 
-        ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-gray-500'}`}
-    >
+    <div {...getRootProps()} className={dropzoneClassName}>
       <input {...getInputProps()} />
-      <div className="flex flex-col items-center justify-center space-y-4">
-        <UploadIcon className="w-12 h-12 text-gray-500 mb-2" />
-        <p className="text-lg font-semibold text-gray-300">Dateien hier ablegen oder zum Auswählen klicken</p>
-        <p className="text-sm text-gray-500">Unterstützt PDF, JPG, PNG & WEBP</p>
+      <div className="flex flex-col items-center justify-center pt-5 pb-6 text-gray-400">
+        <UploadIcon className="w-10 h-10 mb-3" />
+        <p className="mb-2 text-sm">Dateien hier ablegen oder zum Auswählen klicken</p>
+        <p className="text-xs">Unterstützt PDF, JPG, PNG & WEBP</p>
       </div>
     </div>
   );

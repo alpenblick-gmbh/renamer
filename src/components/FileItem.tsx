@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { CheckCircleIcon, ExclamationTriangleIcon, DownloadIcon, TrashIcon, SpinnerIcon } from './icons';
+import { CheckCircleIcon, ExclamationCircleIcon, DownloadIcon, TrashIcon, SendIcon, LoadingSpinner } from './icons';
 
 export type FileStatus = 'pending' | 'analyzing' | 'renamed' | 'error';
 
@@ -11,19 +10,20 @@ interface FileItemProps {
   errorMessage?: string;
   onDelete: () => void;
   onDownload: () => void;
+  onSend: () => void;
   isProcessing: boolean;
 }
 
 const StatusIndicator: React.FC<{ status: FileStatus }> = ({ status }) => {
   switch (status) {
     case 'analyzing':
-      return <SpinnerIcon className="animate-spin h-5 w-5 text-blue-400" />;
+      return <LoadingSpinner className="h-5 w-5 text-blue-400" />;
     case 'renamed':
       return <CheckCircleIcon className="h-5 w-5 text-green-400" />;
     case 'error':
-       return <ExclamationTriangleIcon className="h-5 w-5 text-red-500" />;
+       return <ExclamationCircleIcon className="h-5 w-5 text-red-400" />;
     default:
-      return null;
+      return <div className="h-5 w-5" />;
   }
 };
 
@@ -31,18 +31,22 @@ const StatusText: React.FC<{ status: FileStatus, errorMessage?: string }> = ({ s
     switch (status) {
       case 'analyzing':
         return <p className="text-sm text-blue-400">Wird analysiert...</p>;
+      case 'renamed':
+        return <p className="text-sm text-green-400">Erfolgreich umbenannt</p>;
       case 'error':
-        return <p className="text-sm text-red-500">Fehler: {errorMessage}</p>;
+        return <p className="text-sm text-red-400">Fehler: {errorMessage}</p>;
       default:
         return null;
     }
 }
 
-export const FileItem: React.FC<FileItemProps> = ({ file, status, newName, errorMessage, onDelete, onDownload, isProcessing }) => {
-  const isActionable = status === 'renamed' || status === 'error';
+export const FileItem: React.FC<FileItemProps> = ({ file, status, newName, errorMessage, onDelete, onDownload, onSend, isProcessing }) => {
+  const showActionButtons = status === 'renamed';
+
+  const baseButtonClassName = "p-[10px] rounded-full text-gray-400 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
 
   return (
-    <div className="bg-gray-900/50 p-4 rounded-lg flex items-center justify-between transition-all duration-300">
+    <div className="bg-[#2c3544] p-4 rounded-lg flex items-center justify-between transition-all duration-300">
       <div className="flex items-center gap-4 w-full min-w-0">
         <div className="flex-shrink-0">
           <StatusIndicator status={status} />
@@ -52,24 +56,35 @@ export const FileItem: React.FC<FileItemProps> = ({ file, status, newName, error
            <StatusText status={status} errorMessage={errorMessage} />
         </div>
       </div>
-      <div className="flex items-center gap-2 flex-shrink-0 ml-4">
-        {isActionable && (
-          <button
-            onClick={onDownload}
-            className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 text-gray-400 hover:text-white transition-colors duration-200"
-            aria-label="Download"
-          >
-            <DownloadIcon className="h-5 w-5" />
-          </button>
+      <div className="flex items-center gap-3 flex-shrink-0 ml-4">
+        {showActionButtons && (
+          <>
+            <button
+              onClick={onSend}
+              className={`${baseButtonClassName} hover:bg-[#60A5FA] hover:text-gray-900`}
+              aria-label="Send"
+            >
+              <SendIcon className="h-5 w-5" />
+            </button>
+
+            <button
+              onClick={onDownload}
+              className={`${baseButtonClassName} hover:bg-[#4ADE80] hover:text-gray-900`}
+              aria-label="Download"
+            >
+              <DownloadIcon className="h-5 w-5" />
+            </button>
+          </>
         )}
-         <button
-            onClick={onDelete}
-            disabled={isProcessing && status === 'analyzing'}
-            className="p-2 rounded-full text-gray-500 hover:bg-gray-700 hover:text-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Delete"
-          >
-            <TrashIcon className="h-5 w-5" />
-          </button>
+
+        <button
+          onClick={onDelete}
+          disabled={isProcessing && status === 'analyzing'}
+          className={`${baseButtonClassName} hover:bg-[#F87171] hover:text-gray-900`}
+          aria-label="Delete"
+        >
+          <TrashIcon className="h-5 w-5" />
+        </button>
       </div>
     </div>
   );
