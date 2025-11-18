@@ -21,7 +21,7 @@ const StatusIndicator: React.FC<{ status: FileStatus }> = ({ status }) => {
     case 'renamed':
       return <CheckCircleIcon className="h-5 w-5 text-[#4ADE80]" />;
     case 'saved':
-      return <CheckCircleIcon className="h-5 w-5 text-[#60A5FA]" />;
+      return <CheckCircleIcon className="h-5 w-5 text-[#6B7280]" />;
     case 'error':
        return <ExclamationCircleIcon className="h-5 w-5 text-red-400" />;
     case 'cancelled':
@@ -38,7 +38,7 @@ const StatusText: React.FC<{ status: FileStatus, errorMessage?: string }> = ({ s
       case 'renamed':
         return <p className="text-sm text-[#4ADE80]">Erfolgreich umbenannt</p>;
       case 'saved':
-        return <p className="text-sm text-[#60A5FA]">Erfolgreich gespeichert</p>;
+        return <p className="text-sm text-[#6B7280]">Erfolgreich gespeichert</p>;
       case 'error':
         return <p className="text-sm text-red-400">Fehler: {errorMessage}</p>;
       case 'cancelled':
