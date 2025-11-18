@@ -34,6 +34,26 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [directoryName, setDirectoryName] = useState<string | null>(null);
   const [dirHandle, setDirHandle] = useState<FileSystemDirectoryHandle | null>(null);
+  const [directoryHistory, setDirectoryHistory] = useState<{name: string, handle: FileSystemDirectoryHandle}[]>([]);
+
+
+  useEffect(() => {
+    const loadedHistory = localStorage.getItem('directoryHistory');
+    if (loadedHistory) {
+        // Note: Handles cannot be stored in localStorage. We are only storing names.
+        const historyNames = JSON.parse(loadedHistory);
+        // This is a simplified approach. A full implementation would require re-acquiring handles.
+        setDirectoryHistory(historyNames.map((name: string) => ({ name, handle: {} as FileSystemDirectoryHandle })));
+    }
+  }, []);
+
+  const updateDirectoryHistory = (name: string, handle: FileSystemDirectoryHandle) => {
+    setDirectoryHistory(prev => {
+        const newHistory = [{ name, handle }, ...prev.filter(h => h.name !== name)].slice(0, 10);
+        localStorage.setItem('directoryHistory', JSON.stringify(newHistory.map(h => h.name)));
+        return newHistory;
+    });
+  };
 
 
   const handleFilesAdded = useCallback((addedFiles: File[]) => {
@@ -104,12 +124,22 @@ function App() {
   const clearAll = () => {
     setFiles([]);
   }
+
+  const handleSelectFromHistory = (name: string) => {
+    const selectedDir = directoryHistory.find(h => h.name === name);
+    if (selectedDir) {
+        setDirHandle(selectedDir.handle);
+        setDirectoryName(selectedDir.name);
+        setFiles(prevFiles => prevFiles.map(f => f.status === 'saved' ? { ...f, status: 'renamed' } : f));
+    }
+  };
   
   const handleSelectDirectory = async () => {
     try {
         const handle = await (window as any).showDirectoryPicker();
         setDirHandle(handle);
         setDirectoryName(handle.name);
+        updateDirectoryHistory(handle.name, handle);
         // Reset status of saved files to allow re-saving to the new directory
         setFiles(prevFiles => prevFiles.map(f => f.status === 'saved' ? { ...f, status: 'renamed' } : f));
         return handle;
@@ -248,6 +278,8 @@ function App() {
                   isProcessing={isProcessing}
                   directoryName={directoryName}
                   onSelectDirectory={handleSelectDirectory}
+                  directoryHistory={directoryHistory.map(h => h.name)}
+                  onSelectFromHistory={handleSelectFromHistory}
                 />
             </div>
           )}

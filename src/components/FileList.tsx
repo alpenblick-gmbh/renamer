@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { FileItem, FileStatus } from './FileItem';
+import { DirectoryDropdown } from './DirectoryDropdown';
 
 interface FileListProps {
   files: { file: File; status: FileStatus; newName?: string; errorMessage?: string }[];
@@ -13,6 +14,9 @@ interface FileListProps {
   isProcessing: boolean;
   directoryName: string | null;
   onSelectDirectory: () => void;
+  directoryHistory: string[];
+  onSelectFromHistory: (name: string) => void;
+
 }
 
 export const FileList: React.FC<FileListProps> = ({ 
@@ -25,7 +29,9 @@ export const FileList: React.FC<FileListProps> = ({
     onSaveAll, 
     isProcessing, 
     directoryName, 
-    onSelectDirectory 
+    onSelectDirectory, 
+    directoryHistory,
+    onSelectFromHistory
 }) => {
   if (files.length === 0) {
     return null;
@@ -37,14 +43,13 @@ export const FileList: React.FC<FileListProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
-        <button
-          onClick={onSelectDirectory}
-          className="flex-grow min-w-0 bg-[#2c3544] text-gray-300 px-4 py-2 rounded-md hover:bg-[#333f54] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-left truncate"
-          disabled={isProcessing}
-          title={directoryName ? `Ablageort: ${directoryName}` : "Ablageort auswählen"}
-        >
-          {directoryName ? `Ablageort: ${directoryName}` : "Ablageort:"}
-        </button>
+        <DirectoryDropdown 
+            directoryName={directoryName} 
+            directoryHistory={directoryHistory}
+            onSelectDirectory={onSelectDirectory}
+            onSelectFromHistory={onSelectFromHistory}
+            isProcessing={isProcessing}
+        />
         <button
           onClick={onSaveAll}
           className="bg-[#2c3544] text-gray-300 px-4 py-2 rounded-md hover:bg-[#60A5FA] hover:text-gray-900 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
