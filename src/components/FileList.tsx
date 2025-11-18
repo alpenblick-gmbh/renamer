@@ -46,13 +46,6 @@ export const FileList: React.FC<FileListProps> = ({
           {directoryName ? `Ablageort: ${directoryName}` : "Ablageort:"}
         </button>
         <button
-          onClick={onDownloadAll}
-          className="bg-[#2c3544] text-gray-300 px-4 py-2 rounded-md hover:bg-[#4ADE80] hover:text-gray-900 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
-          disabled={isProcessing || !canDownloadAll}
-        >
-          Alle downloaden
-        </button>
-        <button
           onClick={onSaveAll}
           className="bg-[#2c3544] text-gray-300 px-4 py-2 rounded-md hover:bg-[#60A5FA] hover:text-gray-900 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
           disabled={isProcessing || !canSaveAll}
@@ -60,11 +53,18 @@ export const FileList: React.FC<FileListProps> = ({
           Alle speichern
         </button>
         <button
+          onClick={onDownloadAll}
+          className="bg-[#2c3544] text-gray-300 px-4 py-2 rounded-md hover:bg-[#4ADE80] hover:text-gray-900 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+          disabled={isProcessing || !canDownloadAll}
+        >
+          Alle downloaden
+        </button>
+        <button
           onClick={onClearAll}
           className="bg-[#2c3544] text-gray-300 px-4 py-2 rounded-md hover:bg-[#F87171] hover:text-gray-900 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
           disabled={isProcessing}
         >
-          Alle löschen
+          Alles leeren
         </button>
       </div>
       <div className="space-y-4">
