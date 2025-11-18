@@ -31,6 +31,8 @@ const ANBIETER_LISTE = "Telekom, Vodafone, O2, Apple, Amazon";
 function App() {
   const [files, setFiles] = useState<AppFile[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [directoryName, setDirectoryName] = useState<string | null>(null);
+
 
   const handleFilesAdded = useCallback((addedFiles: File[]) => {
     const newFiles: AppFile[] = addedFiles.map((file) => ({
@@ -100,6 +102,16 @@ function App() {
   const clearAll = () => {
     setFiles([]);
   }
+  
+  const handleSelectDirectory = async () => {
+    try {
+        const dirHandle = await (window as any).showDirectoryPicker();
+        setDirectoryName(dirHandle.name);
+    } catch (err) {
+        console.error("Error selecting directory:", err);
+    }
+  };
+
 
   const handleDownload = (index: number) => {
     const fileToDownload = files[index];
@@ -151,6 +163,8 @@ function App() {
                   onSend={handleSend}
                   onClearAll={clearAll}
                   isProcessing={isProcessing}
+                  directoryName={directoryName}
+                  onSelectDirectory={handleSelectDirectory}
                 />
             </div>
           )}
