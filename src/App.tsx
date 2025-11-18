@@ -126,6 +126,7 @@ function App() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    setFiles(prev => prev.map((f, i) => i === index ? { ...f, status: 'downloaded' } : f));
   };
   
   const handleSend = async (index: number) => {

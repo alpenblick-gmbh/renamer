@@ -1,7 +1,7 @@
 import React from 'react';
 import { CheckCircleIcon, ExclamationCircleIcon, DownloadIcon, TrashIcon, SendIcon, LoadingSpinner, ExclamationTriangleIcon } from './icons';
 
-export type FileStatus = 'pending' | 'analyzing' | 'renamed' | 'error' | 'saved' | 'cancelled';
+export type FileStatus = 'pending' | 'analyzing' | 'renamed' | 'error' | 'saved' | 'cancelled' | 'downloaded';
 
 interface FileItemProps {
   file: File;
@@ -21,6 +21,7 @@ const StatusIndicator: React.FC<{ status: FileStatus }> = ({ status }) => {
     case 'renamed':
       return <CheckCircleIcon className="h-5 w-5 text-[#4ADE80]" />;
     case 'saved':
+    case 'downloaded':
       return <CheckCircleIcon className="h-5 w-5 text-[#6B7280]" />;
     case 'error':
        return <ExclamationCircleIcon className="h-5 w-5 text-red-400" />;
@@ -39,6 +40,8 @@ const StatusText: React.FC<{ status: FileStatus, errorMessage?: string }> = ({ s
         return <p className="text-sm text-[#4ADE80]">Erfolgreich umbenannt</p>;
       case 'saved':
         return <p className="text-sm text-[#6B7280]">Erfolgreich gespeichert</p>;
+      case 'downloaded':
+        return <p className="text-sm text-[#6B7280]">Download erfolgreich</p>;
       case 'error':
         return <p className="text-sm text-red-400">Fehler: {errorMessage}</p>;
       case 'cancelled':
@@ -49,7 +52,7 @@ const StatusText: React.FC<{ status: FileStatus, errorMessage?: string }> = ({ s
 }
 
 export const FileItem: React.FC<FileItemProps> = ({ file, status, newName, errorMessage, onDelete, onDownload, onSend, isProcessing }) => {
-  const showActionButtons = status === 'renamed' || status === 'saved' || status === 'cancelled';
+  const showActionButtons = status === 'renamed' || status === 'saved' || status === 'cancelled' || status === 'downloaded';
 
   const baseButtonClassName = "p-[10px] rounded-full text-gray-400 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
 
