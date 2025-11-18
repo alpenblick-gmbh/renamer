@@ -110,6 +110,8 @@ function App() {
         const handle = await (window as any).showDirectoryPicker();
         setDirHandle(handle);
         setDirectoryName(handle.name);
+        // Reset status of saved files to allow re-saving to the new directory
+        setFiles(prevFiles => prevFiles.map(f => f.status === 'saved' ? { ...f, status: 'renamed' } : f));
         return handle;
     } catch (err) {
         console.error("Error selecting directory:", err);
@@ -156,6 +158,57 @@ function App() {
     }
   };
 
+  const handleDownloadAll = () => {
+    files.forEach((file, index) => {
+      if (file.newName) {
+        handleDownload(index);
+      }
+    });
+  };
+
+  const handleSaveAll = async () => {
+    let currentDirHandle = dirHandle;
+    if (!currentDirHandle) {
+        currentDirHandle = await handleSelectDirectory();
+    }
+
+    if (!currentDirHandle) {
+        setFiles(prev => prev.map(f => f.status === 'renamed' ? { ...f, status: 'cancelled' } : f));
+        return;
+    }
+
+    const filesToSave = files.filter(f => f.status === 'renamed');
+    
+    const savePromises = filesToSave.map(async (fileToSave) => {
+        if (!fileToSave.newName) return null;
+        try {
+            const fileHandle = await currentDirHandle!.getFileHandle(fileToSave.newName, { create: true });
+            const writable = await fileHandle.createWritable();
+            await writable.write(fileToSave.file);
+            await writable.close();
+            return { id: fileToSave.id, status: 'saved' };
+        } catch (error) {
+            console.error('Error saving file:', error);
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+            return { id: fileToSave.id, status: 'error', errorMessage };
+        }
+    });
+
+    const results = await Promise.all(savePromises);
+
+    setFiles(prevFiles => {
+        const resultMap = new Map(results.filter(r => r).map(r => [r!.id, r!]));
+        return prevFiles.map(file => {
+            const result = resultMap.get(file.id);
+            if (result) {
+                return { ...file, status: result.status as FileStatus, errorMessage: result.errorMessage };
+            }
+            return file;
+        });
+    });
+};
+
+
   const renderFooter = () => {
     const parts = APP_CONFIG.footerTemplate.split(/(\{\{.*?\}\})/g);
     return parts.map((part, index) => {
@@ -190,6 +243,8 @@ function App() {
                   onDownload={handleDownload}
                   onSend={handleSend}
                   onClearAll={clearAll}
+                  onDownloadAll={handleDownloadAll}
+                  onSaveAll={handleSaveAll}
                   isProcessing={isProcessing}
                   directoryName={directoryName}
                   onSelectDirectory={handleSelectDirectory}
