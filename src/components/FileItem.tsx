@@ -1,7 +1,7 @@
 import React from 'react';
-import { CheckCircleIcon, ExclamationCircleIcon, DownloadIcon, TrashIcon, SendIcon, LoadingSpinner } from './icons';
+import { CheckCircleIcon, ExclamationCircleIcon, DownloadIcon, TrashIcon, SendIcon, LoadingSpinner, ExclamationTriangleIcon } from './icons';
 
-export type FileStatus = 'pending' | 'analyzing' | 'renamed' | 'error';
+export type FileStatus = 'pending' | 'analyzing' | 'renamed' | 'error' | 'saved' | 'cancelled';
 
 interface FileItemProps {
   file: File;
@@ -19,9 +19,13 @@ const StatusIndicator: React.FC<{ status: FileStatus }> = ({ status }) => {
     case 'analyzing':
       return <LoadingSpinner className="h-5 w-5 text-blue-400" />;
     case 'renamed':
-      return <CheckCircleIcon className="h-5 w-5 text-green-400" />;
+      return <CheckCircleIcon className="h-5 w-5 text-[#4ADE80]" />;
+    case 'saved':
+      return <CheckCircleIcon className="h-5 w-5 text-[#60A5FA]" />;
     case 'error':
        return <ExclamationCircleIcon className="h-5 w-5 text-red-400" />;
+    case 'cancelled':
+        return <ExclamationTriangleIcon className="h-5 w-5 text-[#F87171]" />;
     default:
       return <div className="h-5 w-5" />;
   }
@@ -32,16 +36,20 @@ const StatusText: React.FC<{ status: FileStatus, errorMessage?: string }> = ({ s
       case 'analyzing':
         return <p className="text-sm text-blue-400">Wird analysiert...</p>;
       case 'renamed':
-        return <p className="text-sm text-green-400">Erfolgreich umbenannt</p>;
+        return <p className="text-sm text-[#4ADE80]">Erfolgreich umbenannt</p>;
+      case 'saved':
+        return <p className="text-sm text-[#60A5FA]">Erfolgreich gespeichert</p>;
       case 'error':
         return <p className="text-sm text-red-400">Fehler: {errorMessage}</p>;
+      case 'cancelled':
+        return <p className="text-sm text-[#F87171]">Vorgang vom Benutzer abgebrochen</p>;
       default:
         return null;
     }
 }
 
 export const FileItem: React.FC<FileItemProps> = ({ file, status, newName, errorMessage, onDelete, onDownload, onSend, isProcessing }) => {
-  const showActionButtons = status === 'renamed';
+  const showActionButtons = status === 'renamed' || status === 'saved' || status === 'cancelled';
 
   const baseButtonClassName = "p-[10px] rounded-full text-gray-400 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
 

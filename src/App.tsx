@@ -23,6 +23,7 @@ interface AppFile {
   status: FileStatus;
   newName?: string;
   errorMessage?: string;
+  dirHandle?: FileSystemDirectoryHandle;
 }
 
 // Placeholder for the provider list
@@ -32,6 +33,7 @@ function App() {
   const [files, setFiles] = useState<AppFile[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [directoryName, setDirectoryName] = useState<string | null>(null);
+  const [dirHandle, setDirHandle] = useState<FileSystemDirectoryHandle | null>(null);
 
 
   const handleFilesAdded = useCallback((addedFiles: File[]) => {
@@ -105,10 +107,13 @@ function App() {
   
   const handleSelectDirectory = async () => {
     try {
-        const dirHandle = await (window as any).showDirectoryPicker();
-        setDirectoryName(dirHandle.name);
+        const handle = await (window as any).showDirectoryPicker();
+        setDirHandle(handle);
+        setDirectoryName(handle.name);
+        return handle;
     } catch (err) {
         console.error("Error selecting directory:", err);
+        return null;
     }
   };
 
@@ -123,9 +128,31 @@ function App() {
     document.body.removeChild(link);
   };
   
-  const handleSend = (index: number) => {
+  const handleSend = async (index: number) => {
+    let currentDirHandle = dirHandle;
+    if (!currentDirHandle) {
+        currentDirHandle = await handleSelectDirectory();
+    }
+
+    if (!currentDirHandle) {
+      setFiles(prev => prev.map((f, i) => i === index ? { ...f, status: 'cancelled' } : f));
+      return;
+    }
+
     const fileToSend = files[index];
-    console.log(`Sending file: ${fileToSend.newName || fileToSend.file.name}`);
+    if (!fileToSend.newName) return;
+
+    try {
+        const fileHandle = await currentDirHandle.getFileHandle(fileToSend.newName, { create: true });
+        const writable = await fileHandle.createWritable();
+        await writable.write(fileToSend.file);
+        await writable.close();
+        setFiles(prev => prev.map((f, i) => i === index ? { ...f, status: 'saved' } : f));
+    } catch (error) {
+        console.error('Error saving file:', error);
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+        setFiles(prev => prev.map((f, i) => i === index ? { ...f, status: 'error', errorMessage } : f));
+    }
   };
 
   const renderFooter = () => {
