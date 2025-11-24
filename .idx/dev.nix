@@ -9,6 +9,14 @@
     pkgs.firebase-tools
   ];
   # Sets environment variables in the workspace
+  env = {
+    VITE_FIREBASE_API_KEY = "AIzaSyDSlB5z-NparOYnEPGWjY2KQ9MEEPuxDJY";
+    VITE_FIREBASE_AUTH_DOMAIN = "ab-rename-46741219-ba4bc.firebaseapp.com";
+    VITE_FIREBASE_PROJECT_ID = "ab-rename-46741219-ba4bc";
+    VITE_FIREBASE_STORAGE_BUCKET = "ab-rename-46741219-ba4bc.firebasestorage.app";
+    VITE_FIREBASE_MESSAGING_SENDER_ID = "600072389128";
+    VITE_FIREBASE_APP_ID = "1:600072389128:web:648657cf4c2fbe2d94c7bd";
+  };
   idx = {
     # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
     extensions = [
