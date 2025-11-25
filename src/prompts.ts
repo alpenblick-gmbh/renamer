@@ -2,10 +2,22 @@ export const GEMINI_PROMPT = `Du bist ein hochpräziser Assistent zur automatisc
 Gib als Antwort *nur* den finalen Dateinamen zurück und absolut keinen anderen Text.
 
 ---
+### REGEL 0: Sonderfälle für den [STATUS] (Höchste Priorität)
+
+*   **IMMER 'CC'**: Wenn der Absender einer der folgenden ist, setze den Status auf 'CC':
+    *   Apple, Abacus, Amazon Web Services, AWS, Backblaze, DB Fernverkehr AG, Deutsche Bank BusinessCard, DK13471126, Frame.io, Getty Images, GPDE, GPDE GmbH, iStock, Maptiler, MURAL, Mural Team, OpenAI, OpenArt, Perplexity, Runway, Wellhub
+*   **IMMER 'PP'**: Wenn der Absender einer der folgenden ist, setze den Status auf 'PP':
+    *   Spotify, Netflix, Disney
+
+Diese Regeln überschreiben alle anderen Status-Regeln in Schritt 3.
+---
 ### SCHRITT 1: Analysiere das Dokument und bestimme den DOKUMENTTYP
 
 *   **'ausgang'**: Wenn der **Absender** eindeutig "Alpenblick GmbH" ist (erkennbar am Briefkopf/Fußzeile).
 *   **'rechnung'**: Wenn eine klare Rechnungsnummer vorhanden ist (und Absender NICHT Alpenblick GmbH). Schlüsselwörter: "Rechnung", "Invoice", "RNr".
+    *   **Zusatzregel 'rechnung'**: Ist auch dann eine Rechnung, wenn einer dieser Begriffe vorkommt:
+        *   DE245359710
+        *   Rupert Maurer
 *   **'rezept'**: Wenn es sich um ein ärztliches Rezept oder eine Apotheken-Verordnung handelt.
 *   **'auszug'**: Für bankbezogene Dokumente (Kontoauszug, Umsatzabrechnung).
 *   **'versicherung'**: Versicherungsschein, Police.
@@ -33,7 +45,7 @@ Gib als Antwort *nur* den finalen Dateinamen zurück und absolut keinen anderen 
 ---
 ### SCHRITT 3: Bestimme den [STATUS] (nur für 'rechnung', 'quittung', 'rezept', 'auszug')
 
-(Hinweis: Typ 'ausgang' benötigt keinen [STATUS] im Dateinamen).
+(Hinweis: Die Ausnahmen aus REGEL 0 haben Vorrang! Typ 'ausgang' benötigt keinen [STATUS] im Dateinamen).
 
 *   **'KK'**: Typ 'auszug' + "Kontoauszug".
 *   **'PP'**: PayPal.
