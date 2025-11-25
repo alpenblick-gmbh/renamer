@@ -38,7 +38,7 @@ export const DirectoryDropdown: React.FC<DirectoryDropdownProps> = ({
     <div className="relative flex-grow min-w-0" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full bg-[#2c3544] text-gray-300 px-4 py-2 rounded-md hover:bg-[#333f54] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-left truncate"
+        className="w-full bg-[#2c3544] text-gray-300 px-4 py-2 rounded-md hover:bg-gray-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-left truncate"
         disabled={isProcessing}
         title={directoryName ? `Ablageort: ${directoryName}` : "Ablageort auswählen"}
       >
@@ -51,7 +51,7 @@ export const DirectoryDropdown: React.FC<DirectoryDropdownProps> = ({
                 onSelectDirectory();
                 setIsOpen(false);
             }}
-            className="w-full text-left px-4 py-2 hover:bg-[#333f54] text-gray-300"
+            className="w-full text-left px-4 py-2 hover:bg-gray-700 text-gray-300"
           >
             Neuen Ordner wählen...
           </button>
@@ -63,7 +63,7 @@ export const DirectoryDropdown: React.FC<DirectoryDropdownProps> = ({
                 onSelectDirectory();
                 setIsOpen(false);
             }}
-            className="w-full text-left px-4 py-2 hover:bg-[#333f54] text-blue-400 font-medium flex items-center gap-2"
+            className="w-full text-left px-4 py-2 hover:bg-gray-700 text-blue-400 font-medium flex items-center gap-2"
           >
             <span>📁</span> Rechnungen (Drive)
           </button>
@@ -74,7 +74,7 @@ export const DirectoryDropdown: React.FC<DirectoryDropdownProps> = ({
             <button
               key={index}
               onClick={() => handleSelect(name)}
-              className="w-full text-left px-4 py-2 hover:bg-[#333f54] truncate text-gray-400 text-sm"
+              className="w-full text-left px-4 py-2 hover:bg-gray-700 truncate text-gray-400 text-sm"
               title={name}
             >
               {name}
