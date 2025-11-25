@@ -4,38 +4,49 @@ Gib als Antwort *nur* den finalen Dateinamen zurück und absolut keinen anderen 
 ---
 ### SCHRITT 1: Analysiere das Dokument und bestimme den DOKUMENTTYP
 
-*   **'rechnung'**: Wenn eine klare Rechnungsnummer vorhanden ist. Schlüsselwörter: "Rechnung", "Rechnungsnummer", "Rechnung Nr.", "Rechnungs-ID", "Invoice", "RNr", "Re.Nr.", "INV-", "RE-", "TSE-Transaktion".
-*   **'rezept'**: Wenn es sich um ein ärztliches Rezept oder eine Apotheken-Verordnung handelt. Schlüsselwörter: "Rezept", "Verordnung", "Apotheke", "Arztunterschrift", "Gebührenfrei", "Gebührenpflichtig", "Krankenkasse".
-*   **'auszug'**: Für bankbezogene Dokumente. Schlüsselwörter: "Kontoauszug", "Umsatzabrechnung", "Kreditkartenabrechnung", "Finanzstatus".
-*   **'versicherung'**: Wenn es sich klar um ein Versicherungsdokument handelt. Schlüsselwörter: "Versicherungsschein", "Policennummer", Name einer Versicherung.
-*   **'bestellung'**: Wenn das Dokument primär eine Bestellung ist. Schlüsselwörter: "Bestellnummer", "Abrufbestellung", "Order", "Purchase Order", "Auftragsbestätigung".
-*   **'lieferschein'**: Schlüsselwörter: "Lieferschein", "Einlieferungsschein", "Zustellnachweis", "shipping label", "customs declaration", "air waybill".
-*   **'vertrag'**: Wenn es ein Vertrag oder eine Police ist (aber keine Versicherung). Schlüsselwörter: "Vertrag", "Vertragsnummer", "Agreement".
-*   **'quittung'**: Wenn es ein Kassenbon oder Beleg ohne explizite Rechnungsnummer ist. Schlüsselwörter: "Beleg-Nr.", "Beleg", "Ausgabebeleg", "Bonnr.", "Bon-Nr", "Kasse", "Zahlungsbeleg".
-*   **'dok'**: (Fallback) Wenn keiner der obigen Typen klar zutrifft.
+*   **'ausgang'**: Wenn der **Absender** eindeutig "Alpenblick GmbH" ist (erkennbar am Briefkopf/Fußzeile).
+*   **'rechnung'**: Wenn eine klare Rechnungsnummer vorhanden ist (und Absender NICHT Alpenblick GmbH). Schlüsselwörter: "Rechnung", "Invoice", "RNr".
+*   **'rezept'**: Wenn es sich um ein ärztliches Rezept oder eine Apotheken-Verordnung handelt.
+*   **'auszug'**: Für bankbezogene Dokumente (Kontoauszug, Umsatzabrechnung).
+*   **'versicherung'**: Versicherungsschein, Police.
+*   **'bestellung'**: Bestellung, Order, Auftragsbestätigung.
+*   **'lieferschein'**: Lieferschein, Zustellnachweis.
+*   **'vertrag'**: Vertrag, Agreement.
+*   **'quittung'**: Kassenbon, Beleg ohne Rechnungsnr.
+*   **'dok'**: (Fallback).
 
 ---
 ### SCHRITT 2: Extrahiere die Kerninformationen
 
-*   **[Datum]**: Das primäre Dokumentdatum (Format: YYYYMMDD).
-*   **[Unternehmen]**: Der prägnante Name des **Absenders**. Achte auf korrekte Groß- und Kleinschreibung. **Bei Rezepten: Name des Arztes oder der Apotheke. Bei Auszügen: Name der Bank.**
-*   **[Bezeichnung]**: Eine sehr kurze Beschreibung (max. 3-4 Worte). Bei Auszügen z.B. "Kontoauszug Nr 5" oder "Umsatzabrechnung Mai".
-*   **[Nummer]**: Die relevante Identifikationsnummer (Rechnungsnr, Bestellnr, Vertragsnr, Policenr). Bei PayPal der Transaktionscode. **WICHTIG: Falls absolut keine Nummer gefunden werden kann, nutze 'ohneNr'.**
+*   **[Datum]**: Das primäre Dokumentdatum.
+    *   Standard-Format: **YYYYMMDD**.
+    *   **AUSNAHME für Typ 'ausgang':** Nutze das Format **YYMMDD** (z.B. 251002).
+*   **[Unternehmen]**:
+    *   Standard: Der Name des **Absenders**.
+    *   **AUSNAHME für Typ 'ausgang':** Hier ist das [Unternehmen] der **ADRESSAT (Kunde)**.
+    *   **Kürzel-Regel (für alle):** Wandle bekannte Sendernamen in Kürzel um: "Südwestrundfunk" -> "SWR", "Bayerischer Rundfunk" -> "BR", "Zweites Deutsches Fernsehen" -> "ZDF", "Erstes Deutsches Fernsehen" -> "ARD", "Mitteldeutscher Rundfunk" -> "MDR", "Norddeutscher Rundfunk" -> "NDR". Behalte normale Firmennamen (z.B. "Allianz") bei.
+    *   **Spezial:** Bei Rezepten ist es der Arzt/Apotheke. Bei Auszügen die Bank.
+*   **[Bezeichnung]**: Eine sehr kurze Beschreibung (max. 3-4 Worte).
+*   **[Nummer]**: Die Rechnungsnummer/Bestellnummer. Bei PayPal der Transaktionscode. Falls keine Nummer: 'ohneNr'.
+*   **[Projektnummer]**: **Nur für Typ 'ausgang' relevant.** Suche nach "Projektnummer:" und extrahiere die darauf folgende (meist 5-stellige) Nummer.
 
 ---
-### SCHRITT 3: Bestimme den [STATUS] (nur für 'rechnung', 'quittung', 'rezept' und 'auszug')
+### SCHRITT 3: Bestimme den [STATUS] (nur für 'rechnung', 'quittung', 'rezept', 'auszug')
 
-*   **'KK'**: Wenn der Typ **'auszug'** ist und es sich um einen **Kontoauszug** (Girokonto/Kontokorrent) handelt.
-*   **'PP'**: Wenn die Zahlung klar über **PayPal** abgewickelt wurde ("Transaktionscode:", "PayPal").
-*   **'CC'**: Wenn eine Zahlung per **Kreditkarte** (Mastercard, Visa, AMEX), **Stripe** erwähnt wird oder Formulierungen wie "Betrag wurde beglichen mit Credit Card" enthält. **Auch für Typ 'auszug', wenn es eine "Umsatzabrechnung" oder "Kreditkartenabrechnung" ist.**
-*   **'BEZ'**: Wenn Begriffe wie "girocard", "Kartenzahlung" (EC-Karte), "Lastschrift", "eingezogen" oder "bereits bezahlt" vorkommen. **WICHTIG: Wenn der Typ 'rezept' ist, setze den Status IMMER auf 'BEZ'.**
-*   **'OFFEN'**: Wenn **keine Zahlungsmethode** angegeben ist oder eine Überweisung erwartet wird ("Bitte überweisen Sie", "Zahlbar bis"). (Standardannahme).
+(Hinweis: Typ 'ausgang' benötigt keinen [STATUS] im Dateinamen).
+
+*   **'KK'**: Typ 'auszug' + "Kontoauszug".
+*   **'PP'**: PayPal.
+*   **'CC'**: Kreditkarte / Umsatzabrechnung.
+*   **'BEZ'**: EC-Karte, Lastschrift, oder Typ 'rezept'.
+*   **'OFFEN'**: Standard für unbezahlte Rechnungen.
 
 ---
 ### SCHRITT 4: Baue den "finalName" nach diesen Regeln zusammen
 
-**WICHTIGE FORMATIERUNGSREGEL:** Ersetze **JEDEN** Schrägstrich \`/\` im gesamten Dateinamen durch einen Bindestrich \`-\`. Schrägstriche sind in Dateinamen verboten! (Z.B. wird aus '2025/01' -> '2025-01').
+**WICHTIG:** Ersetze JEDEN Schrägstrich \`/\` durch Bindestrich \`-\`.
 
+*   **'ausgang'**: [Nummer] - [Projektnummer] [Unternehmen] [Bezeichnung] Rechnung [Datum]
 *   **'rechnung'**: [Datum] RNr [Nummer] [Unternehmen] [Bezeichnung] **[STATUS]**
 *   **'rezept'**: [Datum] REZEPT [Unternehmen] [Bezeichnung] **[STATUS]**
 *   **'auszug'**: [Datum] **[STATUS]** [Unternehmen] [Bezeichnung]
@@ -47,7 +58,6 @@ Gib als Antwort *nur* den finalen Dateinamen zurück und absolut keinen anderen 
 *   **'dok'**: [Datum] DOK [Unternehmen] [Bezeichnung]
 
 ---
-### FINALES BEISPIEL:
-Eine Rechnung von "Musterfirma GmbH" vom 15.09.2025, Rechnungsnummer 123/456, bezahlt mit Kreditkarte.
-Deine Antwort wäre:
-20250915 RNr 123-456 Musterfirma GmbH Webhosting CC`;
+### BEISPIEL (Ausgang):
+Rechnung von Alpenblick GmbH an "Südwestrundfunk", Projektnummer: 23647, Rechnungsnr: 25-884, Datum 02.10.2025.
+Antwort: 25-884 - 23647 SWR ARD Klassik Social Produktion Rechnung 251002`;
