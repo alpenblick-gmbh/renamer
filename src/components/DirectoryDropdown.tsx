@@ -47,16 +47,34 @@ export const DirectoryDropdown: React.FC<DirectoryDropdownProps> = ({
       {isOpen && (
         <div className="absolute z-10 top-full mt-2 w-full bg-[#2c3544] border border-gray-700 rounded-md shadow-lg">
           <button
-            onClick={onSelectDirectory}
-            className="w-full text-left px-4 py-2 hover:bg-[#333f54]"
+            onClick={() => {
+                onSelectDirectory();
+                setIsOpen(false);
+            }}
+            className="w-full text-left px-4 py-2 hover:bg-[#333f54] text-gray-300"
           >
             Neuen Ordner wählen...
           </button>
+
+           <div className="border-t border-gray-600 my-1"></div>
+           
+           <button
+            onClick={() => {
+                onSelectDirectory();
+                setIsOpen(false);
+            }}
+            className="w-full text-left px-4 py-2 hover:bg-[#333f54] text-blue-400 font-medium flex items-center gap-2"
+          >
+            <span>📁</span> Rechnungen (Drive)
+          </button>
+
+          {directoryHistory.length > 0 && <div className="border-t border-gray-600 my-1"></div>}
+
           {directoryHistory.map((name, index) => (
             <button
               key={index}
               onClick={() => handleSelect(name)}
-              className="w-full text-left px-4 py-2 hover:bg-[#333f54] truncate"
+              className="w-full text-left px-4 py-2 hover:bg-[#333f54] truncate text-gray-400 text-sm"
               title={name}
             >
               {name}

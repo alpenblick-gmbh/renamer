@@ -19,16 +19,16 @@ const StatusIndicator: React.FC<{ status: FileStatus }> = ({ status }) => {
     case 'analyzing':
       return <LoadingSpinner className="h-5 w-5 text-blue-400" />;
     case 'renamed':
-      return <CheckCircleIcon className="h-5 w-5 text-[#4ADE80]" />;
+      return <CheckCircleIcon className="h-5 w-5 text-green-400" />;
     case 'saved':
     case 'downloaded':
-      return <CheckCircleIcon className="h-5 w-5 text-[#6B7280]" />;
+      return <CheckCircleIcon className="h-5 w-5 text-gray-500" />;
     case 'error':
        return <ExclamationCircleIcon className="h-5 w-5 text-red-400" />;
     case 'permission-error':
        return <ExclamationTriangleIcon className="h-5 w-5 text-yellow-400" />;
     case 'cancelled':
-        return <ExclamationTriangleIcon className="h-5 w-5 text-[#F87171]" />;
+        return <ExclamationTriangleIcon className="h-5 w-5 text-red-400" />;
     default:
       return <div className="h-5 w-5" />;
   }
@@ -39,17 +39,17 @@ const StatusText: React.FC<{ status: FileStatus, errorMessage?: string }> = ({ s
       case 'analyzing':
         return <p className="text-sm text-blue-400">Wird analysiert...</p>;
       case 'renamed':
-        return <p className="text-sm text-[#4ADE80]">Erfolgreich umbenannt</p>;
+        return <p className="text-sm text-green-400">Erfolgreich umbenannt</p>;
       case 'saved':
-        return <p className="text-sm text-[#6B7280]">Erfolgreich gespeichert</p>;
+        return <p className="text-sm text-gray-500">Erfolgreich gespeichert</p>;
       case 'downloaded':
-        return <p className="text-sm text-[#6B7280]">Download erfolgreich</p>;
+        return <p className="text-sm text-gray-500">Download erfolgreich</p>;
       case 'error':
         return <p className="text-sm text-red-400">Fehler: {errorMessage}</p>;
       case 'permission-error':
         return <p className="text-sm text-yellow-400">{errorMessage}</p>;
       case 'cancelled':
-        return <p className="text-sm text-[#F87171]">Vorgang vom Benutzer abgebrochen</p>;
+        return <p className="text-sm text-red-400">Vorgang vom Benutzer abgebrochen</p>;
       default:
         return null;
     }
@@ -76,7 +76,7 @@ export const FileItem: React.FC<FileItemProps> = ({ file, status, newName, error
           <>
             <button
               onClick={onSend}
-              className={`${baseButtonClassName} hover:bg-[#60A5FA] hover:text-gray-900`}
+              className={`${baseButtonClassName} hover:bg-blue-400 hover:text-gray-900`}
               aria-label="Send"
             >
               <SendIcon className="h-5 w-5" />
@@ -84,7 +84,7 @@ export const FileItem: React.FC<FileItemProps> = ({ file, status, newName, error
 
             <button
               onClick={onDownload}
-              className={`${baseButtonClassName} hover:bg-[#4ADE80] hover:text-gray-900`}
+              className={`${baseButtonClassName} hover:bg-green-400 hover:text-gray-900`}
               aria-label="Download"
             >
               <DownloadIcon className="h-5 w-5" />
@@ -95,7 +95,7 @@ export const FileItem: React.FC<FileItemProps> = ({ file, status, newName, error
         <button
           onClick={onDelete}
           disabled={isProcessing && status === 'analyzing'}
-          className={`${baseButtonClassName} hover:bg-[#F87171] hover:text-gray-900`}
+          className={`${baseButtonClassName} hover:bg-red-400 hover:text-gray-900`}
           aria-label="Delete"
         >
           <TrashIcon className="h-5 w-5" />

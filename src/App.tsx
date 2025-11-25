@@ -92,7 +92,7 @@ const App = () => {
                     <p className="text-lg text-gray-400 mb-8 text-center">Bitte melde Dich an, um fortzufahren.</p>
                     <button
                         onClick={signInWithGoogle}
-                        className="bg-blue-500 hover:bg-[#60A5FA] text-gray-900 font-bold py-2 px-4 rounded-lg flex items-center w-full justify-center sm:w-auto"
+                        className="bg-blue-500 hover:bg-blue-400 text-gray-900 font-bold py-2 px-4 rounded-lg flex items-center w-full justify-center sm:w-auto"
                     >
                         Mit Google anmelden
                     </button>
