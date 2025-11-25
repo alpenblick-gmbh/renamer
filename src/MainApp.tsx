@@ -245,7 +245,7 @@ function MainApp() {
     const parts = APP_CONFIG.footerTemplate.split(/(\{\{.*?\}\})/g);
     return parts.map((part, index) => {
       if (part === '{{heart}}') {
-        return <HeartIcon key={index} className="h-5 w-5 inline-block align-middle text-blue-400 mx-1" style={{ position: 'relative', top: '-1px' }} />;
+        return <HeartIcon key={index} className="h-5 w-5 inline-block align-middle text-blue-400 mx-1 transition-colors duration-300 hover:text-blue-500 hover:animate-breathe" style={{ position: 'relative', top: '-1px' }} />;
       } else if (part === '{{link}}') {
         return <a key={index} href={APP_CONFIG.footerLink} target="_blank" rel="noopener noreferrer" className="hover:text-blue-400">{APP_CONFIG.footerLinkText}</a>;
       } else {
@@ -263,8 +263,8 @@ function MainApp() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-200 flex flex-col items-center p-4 sm:p-6 lg:p-8">
-      <div className="w-full max-w-4xl mx-auto">
-        <header className="text-center mb-12 flex flex-col items-center">
+      <div className="w-full max-w-4xl mx-auto flex flex-col flex-grow">
+        <header className="text-center mb-12 flex flex-col items-center flex-shrink-0">
             <div className="w-full flex justify-center items-center relative">
                 <AlpenblickLogo className="w-auto h-20" src={APP_CONFIG.logoUrl} />
                 <button
@@ -277,7 +277,7 @@ function MainApp() {
             <p className="text-lg text-gray-400 mt-6">{APP_CONFIG.subtitleText}</p>
         </header>
 
-        <main className="space-y-6">
+        <main className="space-y-6 flex-grow">
           <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 sm:p-8 shadow-lg">
             <Dropzone onFilesAdded={handleFilesAdded} isProcessing={isProcessing} />
           </div>
@@ -308,7 +308,7 @@ function MainApp() {
             </span>
           </div>
         </main>
-        <footer className="text-center mt-12 text-gray-600 text-sm">
+        <footer className="text-center mt-12 text-gray-600 text-sm flex-shrink-0 pb-4">
           <p>{renderFooter()}</p>
         </footer>
       </div>
