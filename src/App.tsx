@@ -65,9 +65,9 @@ const App = () => {
         const parts = APP_CONFIG.footerTemplate.split(/(\{\{.*?\}\})/g);
         return parts.map((part, index) => {
           if (part === '{{heart}}') {
-            return <HeartIcon key={index} className="h-5 w-5 inline-block align-middle text-blue-400 mx-1 transition-colors duration-300 hover:text-blue-500 hover:animate-breathe" style={{ position: 'relative', top: '-1px' }} />;
+            return <HeartIcon key={index} className="h-5 w-5 inline-block align-middle text-primary mx-1 transition-colors duration-300 hover:text-primary-dark hover:animate-breathe" style={{ position: 'relative', top: '-1px' }} />;
           } else if (part === '{{link}}') {
-            return <a key={index} href={APP_CONFIG.footerLink} target="_blank" rel="noopener noreferrer" className="hover:text-blue-400">{APP_CONFIG.footerLinkText}</a>;
+            return <a key={index} href={APP_CONFIG.footerLink} target="_blank" rel="noopener noreferrer" className="hover:text-primary">{APP_CONFIG.footerLinkText}</a>;
           } else {
             return part;
           }
@@ -76,28 +76,28 @@ const App = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-900 text-gray-200 flex flex-col items-center justify-center p-4">
+            <div className="min-h-screen bg-background text-gray-200 flex flex-col items-center justify-center p-4">
                 <AlpenblickLogo className="w-auto h-20 mb-6" src={APP_CONFIG.logoUrl} />
-                <p className="text-lg text-gray-400">Wird geladen...</p>
+                <p className="text-lg text-text-muted">Wird geladen...</p>
             </div>
         );
     }
 
     if (!user) {
         return (
-            <div className="min-h-screen bg-gray-900 text-gray-200 flex flex-col items-center p-4">
+            <div className="min-h-screen bg-background text-gray-200 flex flex-col items-center p-4">
                 <div className="flex-grow flex flex-col items-center justify-center w-full max-w-md">
                     <AlpenblickLogo className="w-auto h-20 mb-6" src={APP_CONFIG.logoUrl} />
                     {/* "Willkommen" removed */}
-                    <p className="text-lg text-gray-400 mb-8 text-center">Bitte melde Dich an, um fortzufahren.</p>
+                    <p className="text-lg text-text-muted mb-8 text-center">Bitte melde Dich an, um fortzufahren.</p>
                     <button
                         onClick={signInWithGoogle}
-                        className="bg-blue-500 hover:bg-blue-400 text-gray-900 font-bold py-2 px-4 rounded-lg flex items-center w-full justify-center sm:w-auto"
+                        className="bg-primary-dark hover:bg-primary text-gray-900 font-bold py-2 px-4 rounded-lg flex items-center w-full justify-center sm:w-auto"
                     >
                         Mit Google anmelden
                     </button>
                 </div>
-                <footer className="text-center mt-12 text-gray-600 text-sm pb-4">
+                <footer className="text-center mt-12 text-text-dim text-sm pb-4">
                   <p>{renderFooter()}</p>
                 </footer>
             </div>
@@ -106,13 +106,13 @@ const App = () => {
 
     if (!isAuthorized) {
         return (
-            <div className="min-h-screen bg-gray-900 text-gray-200 flex flex-col items-center justify-center p-4 text-center">
+            <div className="min-h-screen bg-background text-gray-200 flex flex-col items-center justify-center p-4 text-center">
                  <AlpenblickLogo className="w-auto h-20 mb-6" src={APP_CONFIG.logoUrl} />
-                <h1 className="text-3xl font-bold text-red-500 mb-4">Unbefugter Zugriff</h1>
-                <p className="text-lg text-gray-400 mb-8">
+                <h1 className="text-3xl font-bold text-error mb-4">Unbefugter Zugriff</h1>
+                <p className="text-lg text-text-muted mb-8">
                     Der Zugriff auf diese Anwendung ist beschränkt. Bitte melden Sie sich mit einem @alpenblick.gmbh-Konto an.
                 </p>
-                <p className="text-md text-gray-500 mb-8">
+                <p className="text-md text-text-dim mb-8">
                     Angemeldet als: {user.email}
                 </p>
                 <button

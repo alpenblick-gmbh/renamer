@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { FileItem, FileStatus } from './FileItem';
-import { DirectoryDropdown } from './DirectoryDropdown';
+import { Dropdown } from './Dropdown';
 
 interface FileListProps {
   files: { file: File; status: FileStatus; newName?: string; errorMessage?: string }[];
@@ -43,7 +43,7 @@ export const FileList: React.FC<FileListProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
-        <DirectoryDropdown 
+        <Dropdown 
             directoryName={directoryName} 
             directoryHistory={directoryHistory}
             onSelectDirectory={onSelectDirectory}
@@ -52,21 +52,21 @@ export const FileList: React.FC<FileListProps> = ({
         />
         <button
           onClick={onSaveAll}
-          className="bg-[#2c3544] text-gray-300 px-4 py-2 rounded-md hover:bg-blue-400 hover:text-gray-900 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+          className="bg-surface text-text-main px-4 py-2 rounded-md hover:bg-primary hover:text-background transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
           disabled={isProcessing || !canSaveAll}
         >
           Alle speichern
         </button>
         <button
           onClick={onDownloadAll}
-          className="bg-[#2c3544] text-gray-300 px-4 py-2 rounded-md hover:bg-green-400 hover:text-gray-900 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+          className="bg-surface text-text-main px-4 py-2 rounded-md hover:bg-success hover:text-background transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
           disabled={isProcessing || !canDownloadAll}
         >
           Alle downloaden
         </button>
         <button
           onClick={onClearAll}
-          className="bg-[#2c3544] text-gray-300 px-4 py-2 rounded-md hover:bg-red-400 hover:text-gray-900 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+          className="bg-surface text-text-main px-4 py-2 rounded-md hover:bg-error hover:text-background transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
           disabled={isProcessing}
         >
           Alles leeren

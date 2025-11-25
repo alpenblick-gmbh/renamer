@@ -3,7 +3,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { Dropzone } from './components/Dropzone';
 import { FileList } from './components/FileList';
 import { InfoIcon, HeartIcon } from './components/icons';
-import { GEMINI_PROMPT } from './constants';
+import { GEMINI_PROMPT } from './prompts';
 import { convertPdfToImage, getNewFileName } from './lib/utils';
 import { AlpenblickLogo } from './components/AlpenblickLogo';
 import { FileStatus } from './components/FileItem';
@@ -282,9 +282,9 @@ function MainApp() {
     const parts = APP_CONFIG.footerTemplate.split(/(\{\{.*?\}\})/g);
     return parts.map((part, index) => {
       if (part === '{{heart}}') {
-        return <HeartIcon key={index} className="h-5 w-5 inline-block align-middle text-blue-400 mx-1 transition-colors duration-300 hover:text-blue-500 hover:animate-breathe" style={{ position: 'relative', top: '-1px' }} />;
+        return <HeartIcon key={index} className="h-5 w-5 inline-block align-middle text-primary mx-1 transition-colors duration-300 hover:text-primary-dark hover:animate-breathe" style={{ position: 'relative', top: '-1px' }} />;
       } else if (part === '{{link}}') {
-        return <a key={index} href={APP_CONFIG.footerLink} target="_blank" rel="noopener noreferrer" className="hover:text-blue-400">{APP_CONFIG.footerLinkText}</a>;
+        return <a key={index} href={APP_CONFIG.footerLink} target="_blank" rel="noopener noreferrer" className="hover:text-primary">{APP_CONFIG.footerLinkText}</a>;
       } else {
         return part;
       }
@@ -299,28 +299,28 @@ function MainApp() {
 
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-200 flex flex-col items-center p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-background text-gray-200 flex flex-col items-center p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-4xl mx-auto flex flex-col flex-grow">
         <header className="text-center mb-12 flex flex-col items-center flex-shrink-0">
             <div className="w-full flex justify-center items-center relative">
                 <AlpenblickLogo className="w-auto h-20" src={APP_CONFIG.logoUrl} />
                 <button
                     onClick={signOutUser}
-                    className="absolute right-0 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg"
+                    className="absolute right-0 bg-secondary hover:bg-surface-hover text-white font-bold py-2 px-4 rounded-lg"
                 >
                     Sign Out
                 </button>
             </div>
-            <p className="text-lg text-gray-400 mt-6">{APP_CONFIG.subtitleText}</p>
+            <p className="text-lg text-text-muted mt-6">{APP_CONFIG.subtitleText}</p>
         </header>
 
         <main className="space-y-6 flex-grow">
-          <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 sm:p-8 shadow-lg">
+          <div className="bg-container border border-surface-hover rounded-xl p-6 sm:p-8 shadow-lg">
             <Dropzone onFilesAdded={handleFilesAdded} isProcessing={isProcessing} />
           </div>
           
           {files.length > 0 && (
-            <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 sm:p-8 shadow-lg">
+            <div className="bg-container border border-surface-hover rounded-xl p-6 sm:p-8 shadow-lg">
                 <FileList 
                   files={files}
                   onDelete={handleDelete}
@@ -338,14 +338,14 @@ function MainApp() {
             </div>
           )}
 
-          <div className="flex items-start text-sm text-gray-500 bg-gray-800/50 p-4 rounded-lg mt-8">
+          <div className="flex items-start text-sm text-text-dim bg-container/50 p-4 rounded-lg mt-8">
             <InfoIcon className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" />
             <span>
              Ihre Dateien werden lokal im Browser verarbeitet. Für die Analyse wird die erste Seite des Dokuments als Bild an die Google Gemini API gesendet. Es werden keine vollständigen Dateien hochgeladen.
             </span>
           </div>
         </main>
-        <footer className="text-center mt-12 text-gray-600 text-sm flex-shrink-0 pb-4">
+        <footer className="text-center mt-12 text-text-dim text-sm flex-shrink-0 pb-4">
           <p>{renderFooter()}</p>
         </footer>
       </div>

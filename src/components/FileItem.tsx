@@ -17,18 +17,18 @@ interface FileItemProps {
 const StatusIndicator: React.FC<{ status: FileStatus }> = ({ status }) => {
   switch (status) {
     case 'analyzing':
-      return <LoadingSpinner className="h-5 w-5 text-blue-400" />;
+      return <LoadingSpinner className="h-5 w-5 text-primary" />;
     case 'renamed':
-      return <CheckCircleIcon className="h-5 w-5 text-green-400" />;
+      return <CheckCircleIcon className="h-5 w-5 text-success" />;
     case 'saved':
     case 'downloaded':
-      return <CheckCircleIcon className="h-5 w-5 text-gray-500" />;
+      return <CheckCircleIcon className="h-5 w-5 text-text-dim" />;
     case 'error':
-       return <ExclamationCircleIcon className="h-5 w-5 text-red-400" />;
+       return <ExclamationCircleIcon className="h-5 w-5 text-error" />;
     case 'permission-error':
-       return <ExclamationTriangleIcon className="h-5 w-5 text-yellow-400" />;
+       return <ExclamationTriangleIcon className="h-5 w-5 text-warning" />;
     case 'cancelled':
-        return <ExclamationTriangleIcon className="h-5 w-5 text-red-400" />;
+        return <ExclamationTriangleIcon className="h-5 w-5 text-error" />;
     default:
       return <div className="h-5 w-5" />;
   }
@@ -37,19 +37,19 @@ const StatusIndicator: React.FC<{ status: FileStatus }> = ({ status }) => {
 const StatusText: React.FC<{ status: FileStatus, errorMessage?: string }> = ({ status, errorMessage }) => {
     switch (status) {
       case 'analyzing':
-        return <p className="text-sm text-blue-400">Wird analysiert...</p>;
+        return <p className="text-sm text-primary">Wird analysiert...</p>;
       case 'renamed':
-        return <p className="text-sm text-green-400">Erfolgreich umbenannt</p>;
+        return <p className="text-sm text-success">Erfolgreich umbenannt</p>;
       case 'saved':
-        return <p className="text-sm text-gray-500">Erfolgreich gespeichert</p>;
+        return <p className="text-sm text-text-dim">Erfolgreich gespeichert</p>;
       case 'downloaded':
-        return <p className="text-sm text-gray-500">Download erfolgreich</p>;
+        return <p className="text-sm text-text-dim">Download erfolgreich</p>;
       case 'error':
-        return <p className="text-sm text-red-400">Fehler: {errorMessage}</p>;
+        return <p className="text-sm text-error">Fehler: {errorMessage}</p>;
       case 'permission-error':
-        return <p className="text-sm text-yellow-400">{errorMessage}</p>;
+        return <p className="text-sm text-warning">{errorMessage}</p>;
       case 'cancelled':
-        return <p className="text-sm text-red-400">Vorgang vom Benutzer abgebrochen</p>;
+        return <p className="text-sm text-error">Vorgang vom Benutzer abgebrochen</p>;
       default:
         return null;
     }
@@ -58,10 +58,10 @@ const StatusText: React.FC<{ status: FileStatus, errorMessage?: string }> = ({ s
 export const FileItem: React.FC<FileItemProps> = ({ file, status, newName, errorMessage, onDelete, onDownload, onSend, isProcessing }) => {
   const showActionButtons = status === 'renamed' || status === 'saved' || status === 'cancelled' || status === 'downloaded' || status === 'permission-error';
 
-  const baseButtonClassName = "p-[10px] rounded-full text-gray-400 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
+  const baseButtonClassName = "p-[10px] rounded-full text-text-muted transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
 
   return (
-    <div className="bg-[#2c3544] p-4 rounded-lg flex items-center justify-between transition-all duration-300">
+    <div className="bg-surface p-4 rounded-lg flex items-center justify-between transition-all duration-300">
       <div className="flex items-center gap-4 w-full min-w-0">
         <div className="flex-shrink-0">
           <StatusIndicator status={status} />
@@ -76,7 +76,7 @@ export const FileItem: React.FC<FileItemProps> = ({ file, status, newName, error
           <>
             <button
               onClick={onSend}
-              className={`${baseButtonClassName} hover:bg-blue-400 hover:text-gray-900`}
+              className={`${baseButtonClassName} hover:bg-primary hover:text-background`}
               aria-label="Send"
             >
               <SendIcon className="h-5 w-5" />
@@ -84,7 +84,7 @@ export const FileItem: React.FC<FileItemProps> = ({ file, status, newName, error
 
             <button
               onClick={onDownload}
-              className={`${baseButtonClassName} hover:bg-green-400 hover:text-gray-900`}
+              className={`${baseButtonClassName} hover:bg-success hover:text-background`}
               aria-label="Download"
             >
               <DownloadIcon className="h-5 w-5" />
@@ -95,7 +95,7 @@ export const FileItem: React.FC<FileItemProps> = ({ file, status, newName, error
         <button
           onClick={onDelete}
           disabled={isProcessing && status === 'analyzing'}
-          className={`${baseButtonClassName} hover:bg-red-400 hover:text-gray-900`}
+          className={`${baseButtonClassName} hover:bg-error hover:text-background`}
           aria-label="Delete"
         >
           <TrashIcon className="h-5 w-5" />
