@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Dropzone } from './components/Dropzone';
 import { FileList } from './components/FileList';
 import { InfoIcon, HeartIcon } from './components/icons';
@@ -37,14 +37,13 @@ function MainApp() {
   const [directoryName, setDirectoryName] = useState<string | null>(null);
   const [dirHandle, setDirHandle] = useState<FileSystemDirectoryHandle | null>(null);
   const [directoryHistory, setDirectoryHistory] = useState<{name: string, handle: FileSystemDirectoryHandle}[]>([]);
+  const lastFileIndexRef = useRef<number | null>(null);
 
 
   useEffect(() => {
     const loadedHistory = localStorage.getItem('directoryHistory');
     if (loadedHistory) {
-        // Note: Handles cannot be stored in localStorage. We are only storing names.
         const historyNames = JSON.parse(loadedHistory);
-        // This is a simplified approach. A full implementation would require re-acquiring handles.
         setDirectoryHistory(historyNames.map((name: string) => ({ name, handle: {} as FileSystemDirectoryHandle })));
     }
   }, []);
@@ -142,8 +141,10 @@ function MainApp() {
         setDirHandle(handle);
         setDirectoryName(handle.name);
         updateDirectoryHistory(handle.name, handle);
-        // Reset status of saved files to allow re-saving to the new directory
-        setFiles(prevFiles => prevFiles.map(f => f.status === 'saved' ? { ...f, status: 'renamed' } : f));
+        // Reset status to allow re-saving
+        setFiles(prevFiles => prevFiles.map(f => 
+            f.status === 'saved' || f.status === 'permission-error' ? { ...f, status: 'renamed' } : f
+        ));
         return handle;
     } catch (err) {
         console.error("Error selecting directory:", err);
@@ -166,6 +167,7 @@ function MainApp() {
   const handleSend = async (index: number) => {
     let currentDirHandle = dirHandle;
     if (!currentDirHandle) {
+        lastFileIndexRef.current = index; // Remember which file we tried to send
         currentDirHandle = await handleSelectDirectory();
     }
 
@@ -185,10 +187,30 @@ function MainApp() {
         setFiles(prev => prev.map((f, i) => i === index ? { ...f, status: 'saved' } : f));
     } catch (error) {
         console.error('Error saving file:', error);
-        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-        setFiles(prev => prev.map((f, i) => i === index ? { ...f, status: 'error', errorMessage } : f));
+        if (error instanceof TypeError && (error.message.includes('getFileHandle') || error.message.includes('not a function'))) {
+             setFiles(prev => prev.map((f, i) => i === index ? { ...f, status: 'permission-error', errorMessage: 'Hoppla. Wähle den Ordner erneut aus, um die Dateien zu speichern.' } : f));
+             lastFileIndexRef.current = index;
+             await handleSelectDirectory();
+        } else {
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+            setFiles(prev => prev.map((f, i) => i === index ? { ...f, status: 'error', errorMessage } : f));
+        }
     }
   };
+
+  // This effect runs after a directory is selected
+  useEffect(() => {
+    if (lastFileIndexRef.current !== null) {
+        const fileIndex = lastFileIndexRef.current;
+        // Check if the file still exists and is in a savable state
+        if (files[fileIndex] && (files[fileIndex].status === 'renamed' || files[fileIndex].status === 'permission-error')) {
+             handleSend(fileIndex); // Retry sending the specific file
+        }
+        lastFileIndexRef.current = null; // Reset the ref
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dirHandle]); // Dependency on dirHandle ensures this runs after a new directory is selected
+
 
   const handleDownloadAll = () => {
     files.forEach((file, index) => {
@@ -205,39 +227,54 @@ function MainApp() {
     }
 
     if (!currentDirHandle) {
-        setFiles(prev => prev.map(f => f.status === 'renamed' ? { ...f, status: 'cancelled' } : f));
+        setFiles(prev => prev.map(f => (f.status === 'renamed' || f.status === 'permission-error') ? { ...f, status: 'cancelled' } : f));
         return;
     }
-
-    const filesToSave = files.filter(f => f.status === 'renamed');
+    // After selecting a directory, we can trigger a re-save for all applicable files.
+    // We change their status to renamed to make them eligible for saving again.
+    setFiles(prevFiles => prevFiles.map(f => (f.status === 'permission-error') ? { ...f, status: 'renamed' } : f));
     
-    const savePromises = filesToSave.map(async (fileToSave) => {
-        if (!fileToSave.newName) return null;
-        try {
-            const fileHandle = await currentDirHandle!.getFileHandle(fileToSave.newName, { create: true });
-            const writable = await fileHandle.createWritable();
-            await writable.write(fileToSave.file);
-            await writable.close();
-            return { id: fileToSave.id, status: 'saved' };
-        } catch (error) {
-            console.error('Error saving file:', error);
-            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-            return { id: fileToSave.id, status: 'error', errorMessage };
-        }
-    });
+    // Use a small timeout to allow the state update to be processed before saving
+    setTimeout(() => {
+        // The save logic is now inside the component, so we access the latest state via a callback in setFiles
+        setFiles(currentFiles => {
+            const filesToSave = currentFiles.filter(f => f.status === 'renamed');
+        
+            const savePromises = filesToSave.map(async (fileToSave) => {
+                if (!fileToSave.newName) return null;
+                try {
+                    const fileHandle = await currentDirHandle!.getFileHandle(fileToSave.newName, { create: true });
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(fileToSave.file);
+                    await writable.close();
+                    return { id: fileToSave.id, status: 'saved' };
+                } catch (error) {
+                    console.error('Error saving file:', error);
+                    if (error instanceof TypeError && (error.message.includes('getFileHandle') || error.message.includes('not a function'))) {
+                         return { id: fileToSave.id, status: 'permission-error', errorMessage: 'Hoppla. Wähle den Ordner erneut aus, um die Dateien zu speichern.' };
+                    } else {
+                         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+                         return { id: fileToSave.id, status: 'error', errorMessage };
+                    }
+                }
+            });
 
-    const results = await Promise.all(savePromises);
+            Promise.all(savePromises).then(results => {
+                setFiles(prevFiles => {
+                    const resultMap = new Map(results.filter(r => r).map(r => [r!.id, r!]));
+                    return prevFiles.map(file => {
+                        const result = resultMap.get(file.id);
+                        if (result) {
+                            return { ...file, status: result.status as FileStatus, errorMessage: result.errorMessage };
+                        }
+                        return file;
+                    });
+                });
+            });
 
-    setFiles(prevFiles => {
-        const resultMap = new Map(results.filter(r => r).map(r => [r!.id, r!]));
-        return prevFiles.map(file => {
-            const result = resultMap.get(file.id);
-            if (result) {
-                return { ...file, status: result.status as FileStatus, errorMessage: result.errorMessage };
-            }
-            return file;
+            return currentFiles; // Return current files, state will be updated by promises
         });
-    });
+    }, 100); // Small delay
 };
 
 

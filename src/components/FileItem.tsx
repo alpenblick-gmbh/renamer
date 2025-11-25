@@ -1,7 +1,7 @@
 import React from 'react';
 import { CheckCircleIcon, ExclamationCircleIcon, DownloadIcon, TrashIcon, SendIcon, LoadingSpinner, ExclamationTriangleIcon } from './icons';
 
-export type FileStatus = 'pending' | 'analyzing' | 'renamed' | 'error' | 'saved' | 'cancelled' | 'downloaded';
+export type FileStatus = 'pending' | 'analyzing' | 'renamed' | 'error' | 'saved' | 'cancelled' | 'downloaded' | 'permission-error';
 
 interface FileItemProps {
   file: File;
@@ -25,6 +25,8 @@ const StatusIndicator: React.FC<{ status: FileStatus }> = ({ status }) => {
       return <CheckCircleIcon className="h-5 w-5 text-[#6B7280]" />;
     case 'error':
        return <ExclamationCircleIcon className="h-5 w-5 text-red-400" />;
+    case 'permission-error':
+       return <ExclamationTriangleIcon className="h-5 w-5 text-yellow-400" />;
     case 'cancelled':
         return <ExclamationTriangleIcon className="h-5 w-5 text-[#F87171]" />;
     default:
@@ -44,6 +46,8 @@ const StatusText: React.FC<{ status: FileStatus, errorMessage?: string }> = ({ s
         return <p className="text-sm text-[#6B7280]">Download erfolgreich</p>;
       case 'error':
         return <p className="text-sm text-red-400">Fehler: {errorMessage}</p>;
+      case 'permission-error':
+        return <p className="text-sm text-yellow-400">{errorMessage}</p>;
       case 'cancelled':
         return <p className="text-sm text-[#F87171]">Vorgang vom Benutzer abgebrochen</p>;
       default:
@@ -52,7 +56,7 @@ const StatusText: React.FC<{ status: FileStatus, errorMessage?: string }> = ({ s
 }
 
 export const FileItem: React.FC<FileItemProps> = ({ file, status, newName, errorMessage, onDelete, onDownload, onSend, isProcessing }) => {
-  const showActionButtons = status === 'renamed' || status === 'saved' || status === 'cancelled' || status === 'downloaded';
+  const showActionButtons = status === 'renamed' || status === 'saved' || status === 'cancelled' || status === 'downloaded' || status === 'permission-error';
 
   const baseButtonClassName = "p-[10px] rounded-full text-gray-400 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
 
