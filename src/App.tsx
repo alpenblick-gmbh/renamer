@@ -15,11 +15,21 @@ const APP_CONFIG = {
 };
 
 const App = () => {
-    const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [isAuthorized, setIsAuthorized] = useState(false);
+    // --- DEVELOPMENT SHORTCUT ---
+    // In dev mode, we simulate a logged-in and authorized user to bypass the login screen.
+    // `import.meta.env.DEV` is a Vite feature that is true during development and false in production builds.
+    const [user, setUser] = useState<User | null>(import.meta.env.DEV ? ({} as User) : null);
+    const [loading, setLoading] = useState(import.meta.env.DEV ? false : true);
+    const [isAuthorized, setIsAuthorized] = useState(import.meta.env.DEV ? true : false);
+
 
     useEffect(() => {
+        // If we are in development mode, we don't need to check for auth status.
+        if (import.meta.env.DEV) {
+            setLoading(false);
+            return;
+        }
+
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             if (currentUser) {
                 setUser(currentUser);
@@ -46,7 +56,7 @@ const App = () => {
                 
                 if (error.code === 'auth/unauthorized-domain') {
                     alert(
-                        'Fehler: Diese Domain ist nicht für die Authentifizierung autorisiert.\n\n' +
+                        'Fehler: Diese Domain ist nicht für die Authentifizierung autorisiert.\\n\\n' +
                         'Bitte fügen Sie die URL Ihrer App (z.B. Ihr-Projekt-Name.web.app) zur Liste der autorisierten Domains in den Firebase Authentication-Einstellungen hinzu.'
                     );
                 } else if (error.code !== 'auth/popup-closed-by-user') {

@@ -1,3 +1,30 @@
+# IDE-specific
+.idx/
+.idea/
+.vscode/
+
+# Environment variables
 .env
-node_modules
+.env.*
+!.env.example
+
+# Project-specific secrets
+src/config.ts
+
+# Build output
 dist
+dist-ssr
+
+# Dependencies
+node_modules
+/coverage
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Other
+*.local
+.DS_Store
