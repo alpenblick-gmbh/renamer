@@ -5,6 +5,7 @@ Gib als Antwort *nur* den finalen Dateinamen zurück und absolut keinen anderen 
 ### SCHRITT 1: Analysiere das Dokument und bestimme den DOKUMENTTYP
 
 *   **'rechnung'**: Wenn eine klare Rechnungsnummer vorhanden ist. Schlüsselwörter: "Rechnung", "Rechnungsnummer", "Rechnung Nr.", "Rechnungs-ID", "Invoice", "RNr", "Re.Nr.", "INV-", "RE-", "TSE-Transaktion".
+*   **'rezept'**: Wenn es sich um ein ärztliches Rezept oder eine Apotheken-Verordnung handelt. Schlüsselwörter: "Rezept", "Verordnung", "Apotheke", "Arztunterschrift", "Gebührenfrei", "Gebührenpflichtig", "Krankenkasse".
 *   **'versicherung'**: Wenn es sich klar um ein Versicherungsdokument handelt. Schlüsselwörter: "Versicherungsschein", "Policennummer", Name einer Versicherung.
 *   **'bestellung'**: Wenn das Dokument primär eine Bestellung ist. Schlüsselwörter: "Bestellnummer", "Abrufbestellung", "Order", "Purchase Order", "Auftragsbestätigung".
 *   **'lieferschein'**: Schlüsselwörter: "Lieferschein", "Einlieferungsschein", "Zustellnachweis", "shipping label", "customs declaration", "air waybill".
@@ -16,22 +17,23 @@ Gib als Antwort *nur* den finalen Dateinamen zurück und absolut keinen anderen 
 ### SCHRITT 2: Extrahiere die Kerninformationen
 
 *   **[Datum]**: Das primäre Dokumentdatum (Format: YYYYMMDD).
-*   **[Unternehmen]**: Der prägnante Name des **Absenders**. Achte auf korrekte Groß- und Kleinschreibung (z.B. 'Musterfirma GmbH', nicht 'MUSTERFIRMA GMBH').
+*   **[Unternehmen]**: Der prägnante Name des **Absenders**. Achte auf korrekte Groß- und Kleinschreibung (z.B. 'Musterfirma GmbH', nicht 'MUSTERFIRMA GMBH'). **Bei Rezepten ist dies der Name des Arztes oder der Apotheke.**
 *   **[Bezeichnung]**: Eine sehr kurze Beschreibung (max. 3-4 Worte).
 *   **[Nummer]**: Die relevante Identifikationsnummer (Rechnungsnr, Bestellnr, Vertragsnr, Policenr). Bei PayPal der Transaktionscode. **WICHTIG: Falls absolut keine Nummer gefunden werden kann, nutze 'ohneNr'.**
 
 ---
-### SCHRITT 3: Bestimme den [STATUS] (nur für 'rechnung' und 'quittung')
+### SCHRITT 3: Bestimme den [STATUS] (nur für 'rechnung', 'quittung' und 'rezept')
 
 *   **'PP'**: Wenn die Zahlung klar über **PayPal** abgewickelt wurde ("Transaktionscode:", "PayPal").
 *   **'CC'**: Wenn eine Zahlung per **Kreditkarte** (Mastercard, Visa, AMEX), **Stripe** erwähnt wird oder Formulierungen wie "Betrag wurde beglichen mit Credit Card" enthält.
-*   **'BEZ'**: Wenn Begriffe wie "girocard", "Kartenzahlung" (EC-Karte), "Lastschrift", "eingezogen" oder "bereits bezahlt" vorkommen.
+*   **'BEZ'**: Wenn Begriffe wie "girocard", "Kartenzahlung" (EC-Karte), "Lastschrift", "eingezogen" oder "bereits bezahlt" vorkommen. **WICHTIG: Wenn der Typ 'rezept' ist, setze den Status IMMER auf 'BEZ'.**
 *   **'OFFEN'**: Wenn **keine Zahlungsmethode** angegeben ist oder eine Überweisung erwartet wird ("Bitte überweisen Sie", "Zahlbar bis"). (Standardannahme).
 
 ---
 ### SCHRITT 4: Baue den "finalName" nach diesen Regeln zusammen
 
 *   **'rechnung'**: [Datum] RNr [Nummer] [Unternehmen] [Bezeichnung] **[STATUS]**
+*   **'rezept'**: [Datum] REZEPT [Unternehmen] [Bezeichnung] **[STATUS]**
 *   **'versicherung'**: [Datum] VERS [Nummer] [Unternehmen] [Bezeichnung]
 *   **'bestellung'**: [Datum] BESTELL [Nummer] [Unternehmen] [Bezeichnung]
 *   **'lieferschein'**: [Datum] LS [Nummer] [Unternehmen] [Bezeichnung]
