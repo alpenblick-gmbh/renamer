@@ -92,7 +92,7 @@ const App = () => {
                     <p className="text-lg text-text-muted mb-8 text-center">Bitte melde Dich an, um fortzufahren.</p>
                     <button
                         onClick={signInWithGoogle}
-                        className="bg-primary-dark hover:bg-primary text-gray-900 font-bold py-2 px-4 rounded-lg flex items-center w-full justify-center sm:w-auto"
+                        className="bg-primary-dark hover:bg-primary text-background font-bold py-2 px-4 rounded-lg flex items-center w-full justify-center sm:w-auto"
                     >
                         Mit Google anmelden
                     </button>
@@ -117,7 +117,7 @@ const App = () => {
                 </p>
                 <button
                     onClick={signOutUser}
-                    className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg"
+                    className="bg-surface hover:bg-surface-hover text-text-dim hover:text-text-muted font-bold py-2 px-4 rounded-lg transition-colors"
                 >
                     Abmelden
                 </button>

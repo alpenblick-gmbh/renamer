@@ -306,7 +306,7 @@ function MainApp() {
                 <AlpenblickLogo className="w-auto h-20" src={APP_CONFIG.logoUrl} />
                 <button
                     onClick={signOutUser}
-                    className="absolute right-0 bg-secondary hover:bg-surface-hover text-white font-bold py-2 px-4 rounded-lg"
+                    className="absolute right-0 bg-surface hover:bg-surface-hover text-text-dim hover:text-text-muted font-bold py-2 px-4 rounded-lg transition-colors"
                 >
                     Sign Out
                 </button>
